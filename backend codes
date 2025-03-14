@@ -1,0 +1,87 @@
+/* Backend - Spring Boot + MySQL */
+
+package com.quizapp;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class QuizApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(QuizApplication.class, args);
+    }
+}
+
+// User Entity
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+    private String email;
+    private String password;
+}
+
+// Quiz Entity
+@Entity
+@Table(name = "quizzes")
+public class Quiz {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String title;
+}
+
+// Question Entity
+@Entity
+@Table(name = "questions")
+public class Question {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String text;
+    private String options;
+    private String correctAnswer;
+    @ManyToOne
+    @JoinColumn(name = "quiz_id")
+    private Quiz quiz;
+}
+
+// Controller for Quizzes
+@RestController
+@RequestMapping("/api/quizzes")
+public class QuizController {
+    @Autowired
+    private QuizService quizService;
+
+    @GetMapping
+    public List<Quiz> getAllQuizzes() {
+        return quizService.getAllQuizzes();
+    }
+
+    @PostMapping
+    public Quiz createQuiz(@RequestBody Quiz quiz) {
+        return quizService.createQuiz(quiz);
+    }
+}
+
+// Service Layer
+@Service
+public class QuizService {
+    @Autowired
+    private QuizRepository quizRepository;
+
+    public List<Quiz> getAllQuizzes() {
+        return quizRepository.findAll();
+    }
+
+    public Quiz createQuiz(Quiz quiz) {
+        return quizRepository.save(quiz);
+    }
+}
+
+// Repository Interface
+@Repository
+public interface QuizRepository extends JpaRepository<Quiz, Long> {}
