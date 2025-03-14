@@ -1,0 +1,47 @@
+/* Frontend - React.js */
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const QuizApp = () => {
+    const [quizzes, setQuizzes] = useState([]);
+    const [title, setTitle] = useState('');
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/quizzes')
+            .then(res => setQuizzes(res.data))
+            .catch(err => console.error(err));
+    }, []);
+
+    const createQuiz = async () => {
+        try {
+            const res = await axios.post('http://localhost:8080/api/quizzes', { title });
+            setQuizzes([...quizzes, res.data]);
+            setTitle('');
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    return (
+        <div>
+            <h2>Quizzes</h2>
+            <div>
+                <input 
+                    type="text" 
+                    placeholder="Quiz Title" 
+                    value={title} 
+                    onChange={(e) => setTitle(e.target.value)} 
+                />
+                <button onClick={createQuiz}>Create Quiz</button>
+            </div>
+            {quizzes.map(quiz => (
+                <div key={quiz.id}>
+                    <h3>{quiz.title}</h3>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export default QuizApp;
